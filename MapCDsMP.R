@@ -3,19 +3,19 @@
 library(maptools)
 loc1 <- "/Users/bjr/GitHub/MapProj/Shp/cb_2015_us_cd114_500k/"
 loc2 <- "/Users/bjr/GitHub/MapProj/Shp/cb_2015_us_county_500k/"
-shploc <- "/Users/bjr/GitHub/MapProj/Shp/"
+rploc <- "/Users/bjr/GitHub/MapProj/"
 maindir <- "/Users/bjr/Dropbox/R_Projects/MapSomething/"
 set.seed(123456)
 
 if(!exists("cdsin")) cdsin <- readShapeSpatial(paste0(loc1, "cb_2015_us_cd114_500k.shp"))
 if(!exists("ctsin")) ctsin <- readShapeSpatial(paste0(loc2, "cb_2015_us_county_500k.shp"))
-if(!exists("fips")) fips <- read.csv(paste0(shploc, "FIPS Codes by state.csv"))
+if(!exists("fips")) fips <- read.csv(paste0(rploc, "FIPS Codes by state.csv"))
 
 head(cdsin)
 names(cdsin)
 names(ctsin)
 
-statetouse <- "Alaska"
+statetouse <- "Hawaii"
 
 fptouse <- fips[which(fips$State.Name == statetouse),"FIPS.Code"]
 if(nchar(as.character(fptouse)) == 1) fptouse <- paste0(0,fptouse)
@@ -47,7 +47,7 @@ cds <- fortify(cdsin[cdsin$STATEFP == fptouse,], region = "CD114FP")
 ## out of the if statement because Alaska just had the Aleutian
 ## Islands showing up, and I can't have that.
 cts <- cts[cts$long < -50,]
-cds <- cts[cds$long < -50,]
+cds <- cds[cds$long < -50,]
 
 
 unique(cts$id)
