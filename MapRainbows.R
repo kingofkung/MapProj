@@ -20,8 +20,8 @@ fptouse <- fips[which(fips$State.Name == statetouse),"FIPS.Code"]
 if(nchar(as.character(fptouse)) == 1) fptouse <- paste0(0,fptouse)
 
 ## Get rid of noncontinental FIPS.
-fpstonotuse <- fips$FIPS.Code[fips$State.Name %in% c("Alaska", "Hawaii", "Puerto Rico", "Virgin Islands", "American Samoa", "Guam")]
-fpstonotuse <- unlist(lapply(fpstonotuse, function(x) if(nchar(as.character(x)) == 1) x <- paste0(0,x) else x))
+## fpstonotuse <- fips$FIPS.Code[fips$State.Name %in% c("Alaska", "Hawaii", "Puerto Rico", "Virgin Islands", "American Samoa", "Guam")]
+## fpstonotuse <- unlist(lapply(fpstonotuse, function(x) if(nchar(as.character(x)) == 1) x <- paste0(0,x) else x))
 
 
 library(ggplot2)
@@ -61,9 +61,7 @@ prop.table(table(colsamp))
 
 
 ## These lines sort the counties by color based on latitude or
-## longitude.  Previously if we want it by lattitude, we usually want
-## to replace meanlong with meanlat with a negative sign in front. It
-## just looks better that way.
+## longitude.
 stripedir <- "vert"
 
 if(stripedir == "vert") coldf <- data.frame(ctname = unique(cts$group)[order(meanlong$x)], ctcol = colsamp)
@@ -88,8 +86,6 @@ map <- map + coord_map()
 
 ## Change the color scheme of the counties
 map <- map + scale_fill_gradientn(colours = rainbow(7))
-
-## map <- map + ggtitle("A Map of the State of Kansas")
 
 map <- map + theme(panel.background = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank(), axis.ticks = element_blank(), legend.position = "none")
 
