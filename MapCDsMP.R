@@ -80,7 +80,7 @@ fileproplong <- diff(range(cts$long))
 fileproplat <-  diff(range(cts$lat))
 pdf(paste0(maindir, "", statetouse, ".pdf"), width = fileproplong * .8, height = fileproplat, )
 
-map <- ggplot(cts) + geom_polygon(aes(x = long, y = lat, group = group, fill = ctcol), data = cts, colour = "black") 
+map <- ggplot(cts) + geom_polygon(aes(x = long, y = lat, group = group, fill = ctcol), data = cts, colour = "black")
 
 ## Change the color scheme of the counties
 map <- map + scale_fill_gradient(high = 'blue', low = 'green')
