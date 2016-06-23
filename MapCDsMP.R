@@ -4,18 +4,15 @@ library(maptools)
 loc1 <- "/Users/bjr/GitHub/MapProj/Shp/cb_2015_us_cd114_500k/"
 loc2 <- "/Users/bjr/GitHub/MapProj/Shp/cb_2015_us_county_500k/"
 rploc <- "/Users/bjr/GitHub/MapProj/"
-maindir <- "/Users/bjr/Dropbox/R_Projects/MapSomething/"
+maindir <- "/Users/bjr/Dropbox/R_Projects/MapSomething/cdcs/"
 set.seed(123456)
 
 if(!exists("cdsin")) cdsin <- readShapeSpatial(paste0(loc1, "cb_2015_us_cd114_500k.shp"))
 if(!exists("ctsin")) ctsin <- readShapeSpatial(paste0(loc2, "cb_2015_us_county_500k.shp"))
 if(!exists("fips")) fips <- read.csv(paste0(rploc, "FIPS Codes by state.csv"))
 
-head(cdsin)
-names(cdsin)
-names(ctsin)
 
-statetouse <- "Hawaii"
+statetouse <- "Kansas"
 
 fptouse <- fips[which(fips$State.Name == statetouse),"FIPS.Code"]
 if(nchar(as.character(fptouse)) == 1) fptouse <- paste0(0,fptouse)
@@ -34,11 +31,6 @@ cts <- fortify(ctsin[ctsin$STATEFP == fptouse,], region = "NAME")
 ## cts <- fortify(ctsin[!ctsin$STATEFP %in% fpstonotuse,], region = "NAME")
 ## unique(ctsin$STATEFP[!ctsin$STATEFP %in% fpstonotuse])
 
-
-## This gets rid of all of the islands that don't have a FIPS
-## code. It's a little hacky, but I was low on ideas.
-## cts <- cts[cts$long < -50,]
-
 cds <- fortify(cdsin[cdsin$STATEFP == fptouse,], region = "CD114FP")
 ## cds <- fortify(cdsin[!cdsin$STATEFP %in% fpstonotuse,], region = "CD114FP")
 
@@ -54,22 +46,11 @@ unique(cts$id)
 
 ngrad <- 100
 
-## aggregate longitudes by mean. Useful if we want to group colors and
-## sort them by location on the map (i.e., if we want stripes of
-## color instead of a mixture).
-## meanlong <- aggregate(cts$long, by = list(cts$group), FUN = function(x) mean(x))
-## meanlat <- aggregate(cts$lat, by = list(cts$group), FUN = function(x) mean(x))
-
 
 colsamp <- sort(sample(1:ngrad, length(unique(cts$group)), replace = TRUE))
 
-## This line sorts the counties by color based on latitude or longitude
-## coldf <- data.frame(ctname = unique(cts$group)[order(-meanlat$x)], ctcol = colsamp)
-## The line below is if we don't want it sorted by color.
 coldf <- data.frame(ctname = unique(cts$group), ctcol = colsamp)
 
-
-## Get those colors into cts
 cts <- merge(cts, coldf, by.x = "group", by.y = "ctname", all = TRUE)
 
 
@@ -87,11 +68,11 @@ map <- map + scale_fill_gradient(high = 'blue', low = 'green')
 ## map <- map + scale_fill_gradientn(colours = rainbow(ngrad))
 
 ## add the path of the districts over the counties
-map <-  map + geom_path(aes(x = long, y = lat, group = group), colour = "red", data = cds, size = .5)
+map <-  map + geom_path(aes(x = long, y = lat, group = group), colour = "red", data = cds, size = .6)
 
 map <- map + coord_map()
 
-## map <- map + ggtitle("A Map of the State of Kansas")
+map <- map + ggtitle(paste("A Map of", statetouse))
 
 map <- map + theme(panel.background = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank(), axis.ticks = element_blank(), legend.position = "none")
 
