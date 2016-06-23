@@ -2,17 +2,16 @@
 ## install.packages("maptools", dependencies = TRUE)
 rm(list = ls()[!ls() %in% c("ctsin", "cdsin")])
 library(maptools)
-loc1 <- "/Users/bjr/Dropbox/R_Projects/MapSomething/cb_2015_us_cd114_500k/"
-loc2 <- "/Users/bjr/Dropbox/R_Projects/MapSomething/cb_2015_us_county_500k/"
-maindir <- "/Users/bjr/Dropbox/R_Projects/MapSomething/"
+maploc <- "/Users/bjr/GitHub/MapProj/Shp/cb_2015_us_county_500k/"
+maindir <- "/Users/bjr/Dropbox/R_Projects/MapSomething/RBmaps/"
 set.seed(123456)
 
-if(!exists("ctsin")) ctsin <- readShapeSpatial(paste0(loc2, "cb_2015_us_county_500k.shp"))
-if(!exists("fips")) fips <- read.csv(paste0(maindir, "FIPS Codes by state.csv"))
+if(!exists("ctsin")) ctsin <- readShapeSpatial(paste0(maploc, "cb_2015_us_county_500k.shp"))
+if(!exists("fips")) fips <- read.csv(paste0("/Users/bjr/GitHub/MapProj/FIPS Codes by state.csv"))
 
 names(ctsin)
 
-statetouse <- "Florida"
+statetouse <- "California"
 
 ## For when we have a state we specifically want to use, this gets
 ## that states name and turns it into an FIPS Code
@@ -50,10 +49,6 @@ meanlat <- aggregate(cts$lat, by = list(cts$group), FUN = function(x) mean(x))
 ## 7 colors, with predefined proportions
 ## note to self: Weights don't have to sum to 1.
 colprops <- rep(1, 7)
- colprops[1] <- 1/2.15
-## colprops[2] <- 1/3
-## colprops[4:6] <- colprops[4:6]*1.5
-colprops[4] <- 0
 
 colsamp <- sort(sample(1:7, length(unique(cts$group)), replace = TRUE, prob = colprops ))
 prop.table(table(colsamp))
@@ -62,7 +57,7 @@ prop.table(table(colsamp))
 
 ## These lines sort the counties by color based on latitude or
 ## longitude.
-stripedir <- "vert"
+stripedir <- "horiz"
 
 if(stripedir == "vert") coldf <- data.frame(ctname = unique(cts$group)[order(meanlong$x)], ctcol = colsamp)
 if(stripedir == "horiz") coldf <- data.frame(ctname = unique(cts$group)[order(-meanlat$x)], ctcol = colsamp)
