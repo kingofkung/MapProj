@@ -80,7 +80,7 @@ fileproplong <- diff(range(cts$long))
 fileproplat <-  diff(range(cts$lat))
 pdf(paste0(maindir, "", statetouse, ".pdf"), width = fileproplong * .8, height = fileproplat, )
 
-map <- ggplot(cts) + geom_polygon(aes(x = long, y = lat, group = group, fill = ctcol), data = cts, colour = "black")
+map <- ggplot(cts) + geom_polygon(aes(x = long, y = lat, group = group, fill = ctcol), data = cts, colour = "black") 
 
 ## Change the color scheme of the counties
 map <- map + scale_fill_gradient(high = 'blue', low = 'green')
@@ -88,6 +88,8 @@ map <- map + scale_fill_gradient(high = 'blue', low = 'green')
 
 ## add the path of the districts over the counties
 map <-  map + geom_path(aes(x = long, y = lat, group = group), colour = "red", data = cds, size = .5)
+
+map <- map + coord_map()
 
 ## map <- map + ggtitle("A Map of the State of Kansas")
 
