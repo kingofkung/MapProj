@@ -39,12 +39,6 @@ cts <- cts[cts$long < -50,]
 
 unique(cts$id)
 
-## aggregate longitudes by mean. Useful if we want to group colors and
-## sort them by location on the map (i.e., if we want stripes of
-## color instead of a mixture).
-
-meanlong <- aggregate(cts$long, by = list(cts$group), FUN = function(x) mean(x))
-meanlat <- aggregate(cts$lat, by = list(cts$group), FUN = function(x) mean(x))
 
 ## 7 colors, with predefined proportions
 ## note to self: Weights don't have to sum to 1.
@@ -59,9 +53,21 @@ prop.table(table(colsamp))
 ## longitude.
 stripedir <- "horiz"
 
-if(stripedir == "vert") coldf <- data.frame(ctname = unique(cts$group)[order(meanlong$x)], ctcol = colsamp)
-if(stripedir == "horiz") coldf <- data.frame(ctname = unique(cts$group)[order(-meanlat$x)], ctcol = colsamp)
+## aggregate longitudes by mean. Useful if we want to group colors and
+## sort them by location on the map (i.e., if we want stripes of
+## color instead of a mixture).
 
+
+
+if(stripedir == "vert"){
+    meanlong <- aggregate(cts$long, by = list(cts$group), FUN = function(x) mean(x))
+    coldf <- data.frame(ctname = unique(cts$group)[order(meanlong$x)], ctcol = colsamp)
+}
+
+if(stripedir == "horiz"){
+    meanlat <- aggregate(cts$lat, by = list(cts$group), FUN = function(x) mean(x))
+    coldf <- data.frame(ctname = unique(cts$group)[order(-meanlat$x)], ctcol = colsamp)
+}
 
 ## Get those colors into cts
 cts <- merge(cts, coldf, by.x = "group", by.y = "ctname", all = TRUE)
