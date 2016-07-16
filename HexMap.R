@@ -11,7 +11,7 @@ hexin <- readShapePoly(paste0(maploc, "us_states_hexgrid.shp"))
 ## head(hexin)
 
 hexmap <- fortify(hexin, region = "iso3166_2")
-head(hexmap)
+dim(hexmap)
 
 ## Remove DC
 hexmap <- hexmap[!hexmap$id %in% "DC",]
