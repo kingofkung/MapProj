@@ -1,20 +1,20 @@
- ## Figured I'd try making a map using shapefiles for the first time in a while.
+## Figured I'd try making a map using shapefiles for the first time in a while.
 ## install.packages("maptools", dependencies = TRUE)
-rm(list = ls()[!ls() %in% c("bra0", "bra1", "bra2", "bra3")])
+rm(list = ls()[!ls() %in% c("bra2", "brafort", "broutFort", "brout")])
 library(maptools)
 maploc <- "/Users/bjr/GitHub/MapProj/Shp/BRA_adm_shp/"
 maindir <- "/Users/bjr/Dropbox/R_Projects/MapSomething/RBmaps/"
 set.seed(123456)
 
-bra2 <- readShapePoly(paste0(maploc, "BRA_adm2.shp"))
+if(!exists("bra2"))bra2 <- readShapePoly(paste0(maploc, "BRA_adm2.shp"))
 
 names(bra2)
-head(bra)
- str(bra, 5)
 
 library(ggplot2)
-brazil <- fortify(bra2, region = "ID_1")
-brazil <- brazil[seq(1, nrow(brazil), 10),]
+
+reg <- "ID_1"
+if(!exists("brafort")) brafort <- fortify(bra2, region = reg)
+brazil <- brafort[seq(1, nrow(brafort), 10),]
 dim(brazil)
 head(brazil)
 
@@ -22,6 +22,8 @@ head(brazil)
 ## 7 colors, with predefined proportions
 ## note to self: Weights don't have to sum to 1.
 colprops <- rep(1, 7)
+ colprops[1] <- .05
+colprops[2] <- .2
 
 colsamp <- sort(sample(1:7, length(unique(brazil$group)), replace = TRUE, prob = colprops ))
 prop.table(table(colsamp))
