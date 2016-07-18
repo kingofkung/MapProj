@@ -25,7 +25,10 @@ str(bra2)
 
 
 
-## Box outside brazil?
+## Want to make a box outside Brazil? unionSpatialPolygons joins
+## together all the polygons with a certain id. Since ID_0 represents
+## being a part of Brazil, this gets all of the polygons inside the
+## mainland. Wish there was a way to make it faster though...
 if(!exists("borders")) borders <- unionSpatialPolygons(bra2, bra2$ID_0)
 
 bra2simp <- gSimplify(borders, .0284)
@@ -63,4 +66,3 @@ u
 ## u + coord_map()
 graphics.off()
 
-## Try something different
