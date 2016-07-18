@@ -34,10 +34,7 @@ if(!exists("borderPoly")) borderPoly <- unionSpatialPolygons(bra2, bra2$ID_0)
 bra2simp <- gSimplify(borderPoly, tol = .029)
 brenv <- gEnvelope(bra2simp)
 brout <- gDifference(brenv, bra2simp, byid = F)
-## brout2 <- gIntersection(brenv, bra2simp,  byid = T, drop_lower_td = T)
 broutFort <- fortify(brout)
-## brFortSh <- broutFort
-## brFortSh$order <- 1:nrow(brFortSh)
 
 ## Make the rainbow!
 rainseq <- seq(min(broutFort$long)+.1, max(broutFort$long)-.1, by = .01)
