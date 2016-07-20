@@ -1,0 +1,73 @@
+## Create a set of bars equivalent to a rainbow, so I don't have to
+## keep messing around with all these probabilities.
+rm(list = ls()[!ls() %in% c("stfort", "ctsin", "fips", "brout", "borderPoly")])
+library(maptools)
+library(ggplot2)
+library(rgeos)
+library(maps)
+
+## maploc <- "/Users/bjr/GitHub/MapProj/Shp/BRA_adm_shp/"
+loc2 <- "/Users/bjr/GitHub/MapProj/Shp/cb_2015_us_county_500k/"
+maindir <- "/Users/bjr/Dropbox/R_Projects/MapSomething/RBmaps/"
+set.seed(123456)
+
+if(!exists("ctsin")) ctsin <- readShapeSpatial(paste0(loc2, "cb_2015_us_county_500k.shp"))
+if(!exists("fips")) fips <- read.csv(paste0("/Users/bjr/GitHub/MapProj/FIPS Codes by state.csv"))
+
+
+names(ctsin)
+
+statetouse <- "North Carolina"
+
+## For when we have a state we specifically want to use, this gets
+## that states name and turns it into an FIPS Code
+fptouse <- fips[which(fips$State.Name == statetouse),"FIPS.Code"]
+if(nchar(as.character(fptouse)) == 1) fptouse <- paste0(0,fptouse)
+
+## Get rid of noncontinental FIPS.
+## fpstonotuse <- fips$FIPS.Code[fips$State.Name %in% c("Alaska", "Hawaii", "Puerto Rico", "Virgin Islands", "American Samoa", "Guam")]
+## fpstonotuse <- unlist(lapply(fpstonotuse, function(x) if(nchar(as.character(x)) == 1) x <- paste0(0,x) else x))
+
+
+cts <- fortify(ctsin[ctsin$STATEFP == fptouse,], region = "NAME")
+
+
+
+
+## Want to make a box outside Brazil? unionSpatialPolygons joins
+## together all the polygons with a certain id. Since ID_0 represents
+## being a part of Brazil, this gets all of the polygons inside the
+## mainland. Wish there was a way to make it faster though...
+ctsin$STATEFP %in% fptouse
+if(!exists("borderPoly")) borderPoly <- unionSpatialPolygons(ctsin[], ctsin$NAME)
+
+bra2simp <- gSimplify(borderPoly, tol = .029)
+brenv <- gEnvelope(bra2simp)
+brout <- gDifference(brenv, bra2simp, byid = F)
+broutFort <- fortify(brout)
+
+## Make the rainbow!
+rainseq <- seq(min(broutFort$long)+.1, max(broutFort$long)-.1, by = .01)
+barseq <- rep(mean(broutFort$lat), length.out = length(rainseq))
+coloration <- sort(rep(1:7, length.out = length(rainseq)))
+rainbowdf <- data.frame(rainseq, "barseq" = barseq, coloration)
+
+
+dev.new()
+pdf(paste0(maindir,"BrazilRB.pdf"))
+##
+u <- ggplot() + geom_tile(data = rainbowdf, aes(x = rainseq, y = barseq, fill = rainbow(7)[coloration]), height = 5 + diff(range(brazil$lat))) + scale_fill_identity()
+## Filling with alpha allows us to make/control its transparency.
+u <- u + geom_polygon(data = brazil, aes(x = long, y = lat, group = group), color = "white", fill = alpha("white", 0))  + theme(panel.background = element_blank()) + coord_quickmap()
+## Layer on part hiding everything that isn't brazil
+u <- u + geom_polygon(data = broutFort, aes(x = long, y = lat, group = group), fill = "white")
+u <- u + theme(axis.title = element_blank(), axis.ticks = element_blank(), axis.text = element_blank())
+###
+### Add layers to hide additional rainbow atop and below
+topaes <- aes(xmin = min(long), xmax = max(long), ymin = max(lat) - 0.035, ymax = max(lat) + 5 )
+bottomaes <- aes(xmin = min(long), xmax = max(long), ymax = min(lat), ymin = min(lat) - 0.6)
+u <- u + geom_rect(data = broutFort, topaes, fill = "white") + geom_rect(data = broutFort, bottomaes, fill = "white")
+u
+###
+graphics.off()
+
