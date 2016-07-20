@@ -45,6 +45,13 @@ stenv <- gEnvelope(borderPoly)
 stOut <- gDifference(stenv, borderPoly, byid = F)
 stOutFort <- fortify(stOut)
 
+## And I know this might sound crazy, but work with me here... What if
+## we made a box outside that box to take care of the border issue?
+## Get the dimensions of stenv
+stenvdf <- fortify(stenv)[,1:2]
+
+
+
 ## Make the rainbow!
 latseq <- seq(min(stOutFort$lat), max(stOutFort$lat), by = .001)
 longbarseq <- rep(mean(stOutFort$long) - 1.703, length.out = length(latseq))
@@ -70,13 +77,15 @@ pdf(paste0(maindir,statetouse, "cols.pdf"))
 ## width = (max(cts$long)- min(cts$long))
 u <- ggplot() + geom_tile(data = colordf, aes(x = longbarseq , y = latseq, fill = colvals), width = diff(range(stOutFort$long))) + scale_fill_identity()
 ## Filling with alpha allows us to make/control its transparency.
-u <- u + geom_polygon(data = borderPoly, aes(x = long, y = lat, group = group), color = "black", fill = alpha("white", 0))  + coord_quickmap()
-## Layer on part hiding everything that isn't brazil
+## Layer on part hiding everything that isn't the state
 u <- u + geom_polygon(data = stOutFort, aes(x = long, y = lat, group = group), fill = "white")
+## layer on the border
+u <- u + geom_polygon(data = borderPoly, aes(x = long, y = lat, group = group), color = "black", fill = alpha("white", 0), size = .45)  + coord_quickmap()
 ## u <- u + theme(axis.title = element_blank(), axis.ticks = element_blank(), axis.text = element_blank()) + theme(panel.background = element_blank())
 ### Add layers to hide additional rainbow atop and below
-leftaes <- aes(xmin = min(long), xmax = max(long), ymin = max(lat) - 0.035, ymax = max(lat) + 5 )
-## u <- u + geom_rect(data = broutFort, topaes, fill = "white") + geom_rect(data = broutFort, bottomaes, fill = "white")
+u <- u + geom_polygon(data = stenvdf, mapping = aes(long, lat), position = position_nudge(x = .001,y = .0035), color = "black", fill = alpha("white", 0.0), size = .65)
+##
+##
 u
 ###
 graphics.off()
