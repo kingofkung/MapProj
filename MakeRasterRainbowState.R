@@ -49,6 +49,7 @@ stOutFort <- fortify(stOut)
 ## we made a box outside that box to take care of the border issue?
 ## Get the dimensions of stenv
 stenvdf <- fortify(stenv)[,1:2]
+## I want to make 4 points slightly outside of stenvdf
 
 
 
