@@ -1,11 +1,11 @@
 ## How I made a Kansas Legislative District map.
 
 ## Set working directory
-setwd("/Users/bjr/GitHub/MapProj/MapDemo")
+setwd("/Users/bjr/GitHub/MapProj/MapDemo/tl_2016_20_sldl/")
 
 ## I picked up this shapefile from http://www.census.gov/cgi-bin/geo/shapefiles/index.php
 library(maptools)
-shpin <- readShapePoly("tl_2016_20_sldl/tl_2016_20_sldl.shp")
+shpin <- readShapePoly("tl_2016_20_sldl.shp")
 str(shpin)
 
 ## One of the minuses of ggplot2 is that it absolutely needs a
@@ -58,3 +58,4 @@ shp
 ## And finally, I add a plot title and subtitle, and center it using
 ## theme()
 shp <- shp + labs(title = "Ben's Mapping Demonstration:", subtitle = "State Legislative Districts in the State of Kansas") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+shp
