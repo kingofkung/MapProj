@@ -1,0 +1,63 @@
+## Ranya asked if it was possible to map data by zipcode. I'm going to see if I can plot that on my file here
+
+rm(list = ls())
+
+library(ggplot2)
+library(dplyr)
+library(maptools)
+library(rgeos)
+
+## read in my shapefile
+## maploc <- "~/GitHub/MapProj/Shp/cb_2015_us_state_5m/"
+maploc <- "~/GitHub/MapProj/RanyasProject/Data/cb_2015_us_zcta510_500k/"
+setwd(maploc)
+## mapin <- readShapeSpatial(paste0(maploc, "cb_2015_us_zcta510_500k.shp"))
+## str(mapin, max.level = 7)
+
+## mymap <- fortify(mapin, region = "GEOID10")
+## head(mymap)
+
+## ranyasMap <- write.csv(mymap, paste0(maploc, "us_zta510_500k.csv"))
+
+mymap <- read.csv(paste0(maploc, "us_zta510_500k.csv")
+
+## Remove non-continental states
+## unique(mymap$id)
+## mymap <- mymap[mymap$long < 0 & mymap$lat > 20 & !mymap$id %in% c("AK", "HI"),]
+
+## Just Illinois?
+
+## Get Zipcode data into R
+projloc <- "~/GitHub/MapProj/"
+
+zips <- read.csv(paste0(projloc, "US Zip Codes from 2016 Government Data.txt"))
+head(zips)
+
+zipSelection <- zips[zips$ZIP %in% c( 66044, 64468, 90210, 61701),]
+
+dev.new()
+pdf(paste0(projloc, "/RanyasProject/RanyasMap.pdf"))
+##
+## coord_map() give us a mercator projection. It's quite nice.
+mynewmap <- ggplot(mymap) + geom_polygon(aes(x = long, y = lat, group = group, fill = I("white")), color = "darkolivegreen") + coord_map()
+## mynewmap <- mynewmap + scale_fill_gradient(high = "black", low = "lightgray",
+                                           ## breaks = seq(2.5, 0, -.25),
+                                           ## guide = guide_legend(title = "Logged Gun Owners") )
+mynewmap <- mynewmap + geom_point(data = zipSelection, aes(x = LNG, y = LAT))
+##
+##
+## Add labeling. gCentroid is supposed to give us the central
+## locations of the polygons. Byid means it separates them out by id
+## before returning them.
+## labcoords <- gCentroid(mapin, byid = TRUE)
+## labs <-data.frame(cbind(data.frame(labcoords), id = mapin@data$iso3166_2))
+## ##
+## hex <- hex + geom_text(data = labs, aes(label = id, x = x, y = y), color = "white", size = 2)
+## ##
+mynewmap <- mynewmap + theme(panel.background = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank(), axis.ticks = element_blank(), plot.title = element_text(hjust = 0.5))  + ggtitle("For Ranya: \nPlotting Zip Codes on a map")
+##
+print(mynewmap)
+##
+## Found out that unlike dev.off(), graphics.off() actually closes all the windows R creates
+graphics.off()
+
